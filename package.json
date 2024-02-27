@@ -1,0 +1,15 @@
+{
+  "name": "chai_aur_project",
+  "version": "1.0.0",
+  "description": "A backend project for the yt website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "JS",
+    "Backend"
+  ],
+  "author": "Krish Kalaria",
+  "license": "ISC"
+}
