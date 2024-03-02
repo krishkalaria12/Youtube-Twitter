@@ -28,10 +28,9 @@ This repository contains the backend implementation for a YouTube-like video str
 
 ### Installation
 
-1. Clone the repository: `git clone https://github.com/your-username/your-repo.git`
-2. Install dependencies: `npm install` or `pip install -r requirements.txt`
+1. Clone the repository: `git clone https://github.com/krishkalaria12/YT-Backend.git`
+2. Install dependencies: `npm install`
 3. Configure environment variables (if any).
-4. Run the application: `npm start` or `python app.py`
 
 ## Usage
 
