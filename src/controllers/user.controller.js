@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.models.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {uploadOnCloudinary, deleteOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
@@ -273,67 +273,88 @@ const updateAccountDetails = asyncHandler( async (req,res) => {
     )
 })
 
-const updateUserAvatar = asyncHandler( async (req,res) => {
-    const avatarLocalPath = req.files?.path
+const updateUserAvatar = asyncHandler(async(req, res) => {
+    const avatarLocalPath = req.file?.path;
 
     if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is missing")
+        throw new ApiError(400, "Avatar file is missing");
     }
-    
+
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    
+
     if (!avatar.url) {
-        throw new ApiError(500, "Error while uploading avatar")
+        throw new ApiError(400, "Error while uploading avatar");
     }
 
-    const user = await User.findByIdAndUpdate(req.user?._id ,
+    const user = await User.findById(req.user._id).select("avatar");
+
+    const avatarToDelete = user.avatar.public_id;
+    console.log(avatarToDelete);
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user?._id,
         {
             $set: {
-                avatar: avatar.url
+                avatar: {
+                    public_id: avatar.public_id,
+                    url: avatar.secure_url
+                }
             }
-        }, 
-        {
-            new: true
-        }).select("-password")
-    
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user, "Avatar Image updated successfully")
-    )
-})
+        },
+        { new: true }
+    ).select("-password");
 
-const updateUserCoverImage = asyncHandler( async (req,res) => {
-    const CoverImageLocalPath = req.files?.path
-
-    if (!CoverImageLocalPath) {
-        throw new ApiError(400, "CoverImage file is missing")
+    if (avatarToDelete && updatedUser.avatar.public_id) {
+        await deleteOnCloudinary(avatarToDelete);
     }
 
-    // delete old image - assignment
-    
-    const coverImage = await uploadOnCloudinary(CoverImageLocalPath);
-    
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, updatedUser, "Avatar updated successfully")
+        )
+});
+
+const updateUserCoverImage = asyncHandler(async(req, res) => {
+    const coverImageLocalPath = req.file?.path;
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "coverImage file is missing");
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
     if (!coverImage.url) {
-        throw new ApiError(500, "Error while uploading cover image")
+        throw new ApiError(400, "Error while uploading coverImage");
     }
 
-    const user = await User.findByIdAndUpdate(req.user?._id ,
+    const user = await User.findById(req.user._id).select("coverImage");
+
+    const coverImageToDelete = user.coverImage.public_id;
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user?._id,
         {
             $set: {
-                coverImage: coverImage.url
+                coverImage: {
+                    public_id: coverImage.public_id,
+                    url: coverImage.secure_url
+                }
             }
-        }, 
-        {
-            new: true
-        }).select("-password")
-    
+        },
+        { new: true }
+    ).select("-password");
+
+    if (coverImageToDelete && updatedUser.coverImage.public_id) {
+        await deleteOnCloudinary(coverImageToDelete);
+    }
+
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user, "CoverImage updated successfully")
-    )
-})
+        .status(200)
+        .json(
+            new ApiResponse(200, updatedUser, "coverImage updated successfully")
+        )
+});
 
 const getChannelProfile = asyncHandler( async (req,res) => {
     const {username} = req.params
