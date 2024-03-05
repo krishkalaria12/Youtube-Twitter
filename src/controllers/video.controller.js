@@ -196,6 +196,14 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     // Delete Video Likes and Comments
 
+    await Like.deleteMany({
+        video: videoId
+    })
+
+    await Comment.deleteMany({
+        video: videoId,
+    })
+
     return res
     .status(200)
     .json(
