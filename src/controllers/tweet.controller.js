@@ -5,7 +5,90 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
 const getUserTweets = asyncHandler(async (req, res) => {
-    // TODO: get user tweets
+    const { userId } = req.params;
+
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, "Invalid userId");
+    }
+
+    const getTweets = await Tweet.aggregate([
+        {
+            $match: {
+                _id: mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "ownerDetails",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            "avatar.url": 1,
+                            createdAt: 1
+                        },
+                    },
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "likeDetails",
+                pipeline: [
+                    {
+                        $project: {
+                            likedBy: 1,
+                        },
+                    }
+                ]
+            }
+        }, 
+        {
+            $addFields: {
+                likecount: {
+                    $size: "$likeDetails"
+                },
+                ownerDetails: {
+                    $first: "$ownerDetails"
+                },
+                isLiked: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$likeDetails.likedBy"]},
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        },
+        {
+            $project: {
+                content: 1,
+                ownerDetails: 1,
+                likesCount: 1,
+                createdAt: 1,
+                isLiked: 1
+            },
+        },
+    ])
+
+    if (!getTweets) {
+        throw new ApiError(404, "No tweets found")
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, getTweets, "Tweets fetched successfully"));
 })
 
 const createTweet = asyncHandler(async (req, res) => {
