@@ -106,6 +106,85 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
+
+    const userid = req.user?._id;
+
+    if (!userid) {
+        throw new ApiError(404,"No userid available")
+    }
+
+    const likedVideos = await Like.aggregate([
+        {
+            $match: {
+                likedBy: new mongoose.Types.ObjectId(userid)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "video",
+                foreignField: "_id",
+                as: "likedVideo",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "ownerDetails",
+                        }
+                    },
+                    {
+                        $unwind: "$ownerDetails",
+                    }
+                ]
+            }
+        },
+        {
+            $unwind: "$likedVideo",
+        },
+        {
+            $sort: {
+                createdAt: -1,
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                likedVideo: {
+                    _id: 1,
+                    "videoFile.url": 1,
+                    "thumbnail.url": 1,
+                    owner: 1,
+                    title: 1,
+                    description: 1,
+                    views: 1,
+                    duration: 1,
+                    createdAt: 1,
+                    isPublished: 1,
+                    ownerDetails: {
+                        username: 1,
+                        fullName: 1,
+                        "avatar.url": 1,
+                    },
+                },
+            },
+        },
+    ])
+
+    if (!likedVideos) {
+        throw new ApiError(400, "No Liked videos found")
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                likedVideos,
+                "liked videos fetched successfully"
+            )
+        );
 })
 
 export {
@@ -114,3 +193,61 @@ export {
     toggleVideoLike,
     getLikedVideos
 }
+
+// $unwind example
+
+// After the initial $match and $lookup stages, the document might look like this:
+// {
+//     "_id": ObjectId("likeId"),
+//     "likedBy": ObjectId("userId"),
+//     "video": ObjectId("videoId"),
+//     "createdAt": ISODate("2024-03-11T12:00:00Z"),
+//     "likedVideo": [
+//       {
+//         "_id": ObjectId("videoId"),
+//         "videoFile": { "url": "video-url" },
+//         "thumbnail": { "url": "thumbnail-url" },
+//         "owner": ObjectId("ownerId"),
+//         "title": "Video Title",
+//         "description": "Video Description",
+//         "views": 1000,
+//         "duration": 180,
+//         "createdAt": ISODate("2024-03-10T10:00:00Z"),
+//         "isPublished": true,
+//         "ownerDetails": {
+//           "username": "ownerUsername",
+//           "fullName": "Owner Full Name",
+//           "avatar": { "url": "avatar-url" }
+//         }
+//       }
+//       // Potentially more videos if there are multiple likes for the same user
+//     ]
+//   }
+
+// Now, let's consider the effect of the $unwind stage:
+//   [
+//     {
+//       "_id": ObjectId("likeId"),
+//       "likedBy": ObjectId("userId"),
+//       "video": ObjectId("videoId"),
+//       "createdAt": ISODate("2024-03-11T12:00:00Z"),
+//       "likedVideo": {
+//         "_id": ObjectId("videoId"),
+//         "videoFile": { "url": "video-url" },
+//         "thumbnail": { "url": "thumbnail-url" },
+//         "owner": ObjectId("ownerId"),
+//         "title": "Video Title",
+//         "description": "Video Description",
+//         "views": 1000,
+//         "duration": 180,
+//         "createdAt": ISODate("2024-03-10T10:00:00Z"),
+//         "isPublished": true,
+//         "ownerDetails": {
+//           "username": "ownerUsername",
+//           "fullName": "Owner Full Name",
+//           "avatar": { "url": "avatar-url" }
+//         }
+//       }
+//     }
+//     // Potentially more documents if there are multiple likes for the same user
+//   ]
