@@ -1,7 +1,9 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.models.js"
-import {User} from "../models/user.model.js"
+import { User } from "../models/user.models.js"
 import {ApiError} from "../utils/ApiError.js"
+import {Like} from "../models/like.models.js"
+import {Comment} from "../models/comment.models.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/cloudinary.js"
@@ -122,8 +124,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const createVideo = await Video.create({
-        title,
-        description,
+        title: title?.trim(),
+        description: description?.trim(),
         duration: videoFile.duration,
         videoFile: {
             url: videoFile.url,
@@ -287,7 +289,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiError(404, "No video found");
     }
 
-    if (video?.owner.toString() !== req.user?._id.toString()) {
+    if (video?.owner?.toString() !== req.user?._id.toString()) {
         throw new ApiError(
             400,
             "You can't edit this video as you are not the owner"
@@ -312,8 +314,8 @@ const updateVideo = asyncHandler(async (req, res) => {
         videoId,
         {
             $set: {
-                title,
-                description,
+                title: title?.toString()?.trim(),
+                description: description?.toString()?.trim(),
                 thumbnail: {
                     public_id: thumbnail.public_id,
                     url: thumbnail.url
