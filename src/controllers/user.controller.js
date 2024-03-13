@@ -63,7 +63,7 @@ const registerUser = asyncHandler( async (req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath).catch((error) => console.log(error))
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    
+
     if (!avatar) throw new ApiError(400, "Avatar file is required!!!.")
 
     const user = await User.create({
@@ -248,8 +248,8 @@ const updateAccountDetails = asyncHandler( async (req,res) => {
         throw new ApiError(400, "All fields are required")
     }
 
-    const user = User.findByIdAndUpdate(
-        req.body?._id,
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
         {
             $set: {
                 fullName: fullName,
@@ -258,6 +258,10 @@ const updateAccountDetails = asyncHandler( async (req,res) => {
         },
         {new: true}
     ).select("-password")
+
+    if (!user) {
+        throw new ApiError(500, "User Details not updated");
+    }
 
     return res
     .status(200)
@@ -282,7 +286,6 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     const user = await User.findById(req.user._id).select("avatar");
 
     const avatarToDelete = user.avatar.public_id;
-    console.log(avatarToDelete);
 
     const updatedUser = await User.findByIdAndUpdate(
         req.user?._id,
