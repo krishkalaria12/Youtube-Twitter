@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from "mongoose"
+import mongoose, { isValidObjectId, mongo } from "mongoose"
 import { Tweet } from "../models/tweet.models.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -11,11 +11,11 @@ const getUserTweets = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid userId");
     }
 
-    const getTweets = await Tweet.aggregate([
+    const tweets = await Tweet.aggregate([
         {
             $match: {
-                _id: mongoose.Types.ObjectId(userId)
-            }
+                owner: new mongoose.Types.ObjectId(userId),
+            },
         },
         {
             $lookup: {
@@ -28,11 +28,10 @@ const getUserTweets = asyncHandler(async (req, res) => {
                         $project: {
                             username: 1,
                             "avatar.url": 1,
-                            createdAt: 1
                         },
                     },
-                ]
-            }
+                ],
+            },
         },
         {
             $lookup: {
@@ -45,17 +44,17 @@ const getUserTweets = asyncHandler(async (req, res) => {
                         $project: {
                             likedBy: 1,
                         },
-                    }
-                ]
-            }
-        }, 
+                    },
+                ],
+            },
+        },
         {
             $addFields: {
-                likecount: {
-                    $size: "$likeDetails"
+                likesCount: {
+                    $size: "$likeDetails",
                 },
                 ownerDetails: {
-                    $first: "$ownerDetails"
+                    $first: "$ownerDetails",
                 },
                 isLiked: {
                     $cond: {
@@ -64,7 +63,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
                         else: false
                     }
                 }
-            }
+            },
         },
         {
             $sort: {
@@ -80,15 +79,11 @@ const getUserTweets = asyncHandler(async (req, res) => {
                 isLiked: 1
             },
         },
-    ])
-
-    if (!getTweets) {
-        throw new ApiError(404, "No tweets found")
-    }
+    ]);
 
     return res
         .status(200)
-        .json(new ApiResponse(200, getTweets, "Tweets fetched successfully"));
+        .json(new ApiResponse(200, tweets, "Tweets fetched successfully"));
 })
 
 const createTweet = asyncHandler(async (req, res) => {
@@ -134,7 +129,9 @@ const updateTweet = asyncHandler(async (req, res) => {
 
     const tweetDetails = await Tweet.findById(tweetId)
 
-    if ((tweetDetails?.owner.toString() !== req.user?._id)) {
+    const userId = new mongoose.Types.ObjectId(req.user?._id)
+
+    if (!userId.equals(tweetDetails?.owner)) {
         throw new ApiError(404, "You are not authorized to update this tweet")
     }
 
@@ -155,7 +152,6 @@ const updateTweet = asyncHandler(async (req, res) => {
 
 const deleteTweet = asyncHandler(async (req, res) => {
     const { tweetId } = req.params;
-    const { content } = req.body;
 
     if (!req.user?._id) {
         throw new ApiError(400, "You must be authenticated to delete the tweet")
@@ -165,14 +161,12 @@ const deleteTweet = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Comment not found")
     }
 
-    if (!content) {
-        throw new ApiError(404, "Content is required")
-    }
-
     const tweetDetails = await Tweet.findById(tweetId)
 
-    if ((tweetDetails?.owner.toString() !== req.user?._id)) {
-        throw new ApiError(404, "You are not authorized to update this tweet")
+    const userId = new mongoose.Types.ObjectId(req.user?._id)
+
+    if (!userId.equals(tweetDetails?.owner)) {
+        throw new ApiError(404, "You are not authorized to delete this tweet")
     }
 
     const tweet = await Tweet.findByIdAndDelete(tweetDetails?._id)

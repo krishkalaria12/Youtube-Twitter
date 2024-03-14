@@ -9,7 +9,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const createPlaylist = asyncHandler(async (req, res) => {
     const {name, description} = req.body
 
-    if (req.user?._id) {
+    if (!req.user?._id) {
         throw new ApiError(400, "You must be authenticated to create a playlist")
     }
 
@@ -174,7 +174,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
 
-    if (req.user?._id) {
+    if (!req.user?._id) {
         throw new ApiError(400, "You must be authenticated to add a video to playlist")
     }
 
@@ -189,7 +189,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const playlist = await Playlist.findById(playlistId)
     const video = await Video.findById(videoId)
 
-    if ((playlist?._id.toString() && video.owner.toString()) !== req.user?._id) {
+    if ((playlist.owner?.toString() && video.owner.toString()) !== req.user?._id.toString()) {
         throw new ApiError(400, "You can't add video to this playlist as you are not the owner")
     }
 
@@ -211,42 +211,52 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 })
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
-    const {playlistId, videoId} = req.params
+    const { playlistId, videoId } = req.params;
 
-    if (req.user?._id) {
-        throw new ApiError(400, "You must be authenticated to remove a video from playlist")
+    if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid PlaylistId or videoId");
     }
 
-    if (!isValidObjectId(playlistId)) {
-        throw new ApiError(400, "Invalid Playlist Id");
+    const playlist = await Playlist.findById(playlistId);
+    const video = await Video.findById(videoId);
+
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found");
+    }
+    
+    if (!video) {
+        throw new ApiError(404, "video not found");
     }
 
-    if (!isValidObjectId(videoId)) {
-        throw new ApiError(400, "Invalid Video Id");
+    if (
+        (playlist.owner?.toString() && video.owner.toString()) !==
+        req.user?._id.toString()
+    ) {
+        throw new ApiError(
+            404,
+            "only owner can remove video from thier playlist"
+        );
     }
 
-    const playlist = await Playlist.findById(playlistId)
-    const video = await Video.findById(videoId)
-
-    if ((playlist?._id.toString() && video.owner.toString()) !== req.user?._id) {
-        throw new ApiError(400, "You can't remove video from this playlist as you are not the owner")
-    }
-
-    const removeVideoFromPlaylist = await Playlist.findByIdAndDelete(playlist?._id, {
-        $pull: {
-            videos: videoId
-        }
-    }, {new: true})
-
-    if (!removeVideoFromPlaylist) {
-        throw new ApiError(500, "Failed to remove video from playlist")
-    }
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {
+            $pull: {
+                videos: videoId,
+            },
+        },
+        { new: true }
+    );
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, removeVideoFromPlaylist, "Video removed from playlist successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                updatedPlaylist,
+                "Removed video from playlist successfully"
+            )
+        );
 
 })
 
@@ -263,7 +273,9 @@ const deletePlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400, "No Playlist Such Found");
     }
 
-    if (playlistDetails?.owner.toString() !== req.user?._id.toString()) {
+    const userId = new mongoose.Types.ObjectId(req.user?._id)
+
+    if (!userId.equals(playlistDetails?.owner)) {
         throw new ApiError(
             400,
             "You can't delete this Playlist as you are not the owner"
@@ -287,7 +299,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
     const {name, description} = req.body
 
-    if (req.user?._id) {
+    if (!req.user?._id) {
         throw new ApiError(400, "You must be authenticated to Delete a playlist")
     }
 
