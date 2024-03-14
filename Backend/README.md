@@ -1,46 +1,86 @@
-# YouTube Backend
+# YouTube-Twitter Repository🎥🐦
 
-## Overview
+This repository houses the backend implementation for a YouTube-Twitter hybrid platform. It provides functionalities like user authentication, video management, social interactions, and more.
 
-This repository contains the backend implementation for a YouTube-like video streaming service. The backend is responsible for managing user accounts, video storage, authentication, and serving video content to clients.
+## References
+
+- [Data Modeling](https://documenter.getpostman.com/view/33297672/2sA2xmTVL8) - Link to Data Modeling Documentation
+- [API Documentation](https://app.eraser.io/workspace/V6SS5LVjjRu9nOB5LSvC) - Link to API Documentation
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- MongoDB (MongoDB Aggregation Pipeline)
+- Mongoose
+- Cloudinary (for file storage)
+- Multer (file upload middleware)
 
 ## Features
 
-- User Authentication: Secure user registration and login functionality.
-- Video Upload: Allow users to upload videos to the platform.
-- Video Storage: Efficient storage and retrieval of video content.
-- User Management: Profile management and user-related functionalities.
-- Video Streaming: Implement video streaming for a seamless viewing experience.
-- Comments and Likes: Enable users to interact with videos through comments and likes.
+🔐 **Authentication**:
+- Register
+- Login
+- Change Password
+- Logout
 
-## Technologies Used
+👤 **User Management**:
+- Get User by ID
+- Update Account Details
+- Update Avatar & Cover Image
 
-- **Programming Language:** Choose the language(s) you've used (express, Node.js).
-- **Database:** Specify the database system (e.g., MongoDB).
-- **Authentication:** Describe the authentication mechanism (e.g., JWT, OAuth).
-- **Storage:** Explain how video files are stored (e.g., Cloudinary, local storage).
+👍📝 **Social Interactions**:
+- Add Likes to Videos
+- Comment on Videos & Tweets
+- Tweet
 
-## Getting Started
+📼 **Video Management**:
+- Create, Update, Delete Video
+- Get All Liked Videos of User
+- Create Playlist
+- Add & Remove Videos from Playlist
+- Update Playlist
 
-### Prerequisites
+👥 **Subscription**:
+- Subscribe & Unsubscribe Channel
 
-- List any dependencies or prerequisites users need to install before running the application.
+📊 **Dashboard**:
+- Channel Stats
+- 
+### Setup .env.local File
 
-### Installation
+```js
+PORT = 8000
+MONGODB_URI = [Your MongoDB URI]
+CORS_ORIGIN = *
+ACCESS_TOKEN_SECRET = [Your Access Token Secret]
+ACCESS_TOKEN_EXPIRY = 1d
+REFRESH_TOKEN_SECRET = [Your Refresh Token Secret]
+REFRESH_TOKEN_EXPIRY = 10d
+CLOUDINARY_NAME = [Your Cloudinary Name]
+CLOUDINARY_API_KEY = [Your Cloudinary API Key]
+CLOUDINARY_API_SECRET = [Your Cloudinary API Secret]
+```
 
-1. Clone the repository: `git clone https://github.com/krishkalaria12/YT-Backend.git`
-2. Install dependencies: `npm install`
-3. Configure environment variables (if any).
+## How to Use
 
-## Usage
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/youtube-twitter.git
+    ```
+2. Install dependencies:
+    ```bash
+    cd youtube-twitter
+    npm install
+    ```
+3. Set up environment variables.
+4. Run the project:
+    ```bash
+    npm run dev
+    ```
 
-Provide instructions on how to use the backend services. Include API documentation, endpoints, and any other relevant information.
-
-## Contributing
-
-If you'd like to contribute to this project, please follow the [Contributing Guidelines](CONTRIBUTING.md).
+Feel free to contribute to this project! 🚀
 
 ## Acknowledgments
 
-Mention any libraries, frameworks, or resources you used or were inspired by during development.
-
+This project was inspired by the functionalities of YouTube and Twitter. Special thanks to the open-source community for their valuable contributions.
