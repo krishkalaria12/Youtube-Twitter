@@ -46,19 +46,21 @@ This repository houses the backend implementation for a YouTube-Twitter hybrid p
 
 📊 **Dashboard**:
 - Channel Stats
+- 
+### Setup .env.local File
 
-## Environment Variables
-
-- PORT = 8000
-- MONGODB_URI = [Your MongoDB URI]
-- CORS_ORIGIN = *
-- ACCESS_TOKEN_SECRET = [Your Access Token Secret]
-- ACCESS_TOKEN_EXPIRY = 1d
-- REFRESH_TOKEN_SECRET = [Your Refresh Token Secret]
-- REFRESH_TOKEN_EXPIRY = 10d
-- CLOUDINARY_NAME = [Your Cloudinary Name]
-- CLOUDINARY_API_KEY = [Your Cloudinary API Key]
-- CLOUDINARY_API_SECRET = [Your Cloudinary API Secret]
+```js
+PORT = 8000
+MONGODB_URI = [Your MongoDB URI]
+CORS_ORIGIN = *
+ACCESS_TOKEN_SECRET = [Your Access Token Secret]
+ACCESS_TOKEN_EXPIRY = 1d
+REFRESH_TOKEN_SECRET = [Your Refresh Token Secret]
+REFRESH_TOKEN_EXPIRY = 10d
+CLOUDINARY_NAME = [Your Cloudinary Name]
+CLOUDINARY_API_KEY = [Your Cloudinary API Key]
+CLOUDINARY_API_SECRET = [Your Cloudinary API Secret]
+```
 
 ## How to Use
 
