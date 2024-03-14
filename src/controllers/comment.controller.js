@@ -138,7 +138,9 @@ const updateComment = asyncHandler(async (req, res) => {
 
     const commentDetails = await Comment.findById(commentId)
 
-    if ((commentDetails?.owner.toString() !== req.user?._id)) {
+    const userId = new mongoose.Types.ObjectId(req.user?._id)
+    
+    if (!userId.equals(commentDetails?.owner)) {
         throw new ApiError(404, "You are not authorized to update this comment")
     }
 
@@ -159,7 +161,6 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
-    const { content } = req.body;
 
     if (!req.user?._id) {
         throw new ApiError(400, "You must be authenticated to delet the comment")
@@ -169,13 +170,11 @@ const deleteComment = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Comment not found")
     }
 
-    if (!content) {
-        throw new ApiError(404, "Content is required")
-    }
-
     const commentDetails = await Comment.findById(commentId)
 
-    if ((commentDetails?.owner.toString() !== req.user?._id)) {
+    const userId = new mongoose.Types.ObjectId(req.user?._id)
+
+    if (!userId.equals(commentDetails?.owner)) {
         throw new ApiError(404, "You are not authorized to update this comment")
     }
 
