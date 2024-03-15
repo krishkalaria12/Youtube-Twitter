@@ -1,9 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authSliceReducer from "./features/authSlice";
+import authSlice from "./features/authSlice";
+import VideoSlice from "./features/VideoSlice";
+import searchSlice from "./features/searchSlice";
 
 const store = configureStore({
     reducer: {
-        auth: authSliceReducer,
+        auth: authSlice,
+        video: VideoSlice,
+        search: searchSlice,
     },
 });
 

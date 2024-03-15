@@ -1,9 +1,15 @@
 import HomePage from "./HomePage";
 import Denied from "./Denied"
 import Error from "./NotFound"
+import Login from "./Login";
+import Signup from "./Signup";
+import SearchResultsPage from "./SearchResultsPage"
 
 export {
     HomePage,
     Denied,
-    Error
+    Error,
+    Login,
+    Signup,
+    SearchResultsPage
 }
