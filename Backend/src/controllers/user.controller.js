@@ -172,13 +172,13 @@ const logoutUser = asyncHandler(async(req, res) => {
 
 const refreshAccessToken = asyncHandler(async (req,res) => {
     const incomingRefreshtoken = req.cookies.refreshToken || req.body.refreshToken
-
+    console.log(incomingRefreshtoken);
     if (!incomingRefreshtoken) {
         throw new ApiError(401, "Unauthorized request")
     }
 
     try {
-        const decodedToken = jwt.verify(incomingRefreshtoken, process.env.ACCESS_TOKEN_SECRET)
+        const decodedToken = jwt.verify(incomingRefreshtoken, process.env.REFRESH_TOKEN_SECRET)
     
         const user = await User.findById(decodedToken?._id)
     
@@ -195,16 +195,16 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
             secure: true,
         }
     
-        const {accessToken, newrefreshToken} = await generateAccessAndRefreshTokens(user._id)
+        const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
     
         return res
         .status(200)
         .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", newrefreshToken, options)
+        .cookie("refreshToken", refreshToken, options)
         .json(
             new ApiResponse(
                 200 , 
-                {accessToken, newrefreshToken},
+                {accessToken, refreshToken},
                 "Access Token refreshed"
             )
         )

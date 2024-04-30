@@ -110,14 +110,30 @@ const addComment = asyncHandler(async (req, res) => {
         content,
         owner: req.user?._id,
     })
-
+    
     if (!comment) {
         throw new ApiError(500, "Failed to add comment, Try again later")
     }
+    
+    const owner = {
+        0: {
+            avatar: {
+                url: req.user.avatar.url
+            },
+            username: req.user.username,
+        }
+    }
+    
+    const response = {
+        _id: comment._id,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        owner: owner
+    };
 
     return res
         .status(201)
-        .json(new ApiResponse(201, comment, "Commented Added Successfully"))
+        .json(new ApiResponse(201, response, "Commented Added Successfully"))
 })
 
 const updateComment = asyncHandler(async (req, res) => {

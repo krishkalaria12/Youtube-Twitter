@@ -4,6 +4,14 @@ import { Link } from "react-router-dom";
 import Search from "../Components/Search";
 
 function HomeLayout({ children }) {
+
+  // const dispatch = useDispatch()
+  // const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  
+  // const handleLogout = async () => {
+  //   await dispatch(logout())
+  // }
+
   return (
     <div className="h-screen overflow-y-auto bg-[#121212] text-white">
       <header className="sticky inset-x-0 top-0 z-50 w-full border-b border-white bg-[#121212] px-4">
@@ -214,7 +222,7 @@ function HomeLayout({ children }) {
               </li>
             </ul>
             <div className="mb-8 mt-auto flex w-full flex-wrap gap-4 px-4 sm:mb-0 sm:mt-0 sm:items-center sm:px-0">
-              <Link to={"/login"}>
+                <Link to={"/login"}>
                 <button className="w-full bg-[#383737] px-3 py-2 hover:bg-[#4f4e4e] sm:w-auto sm:bg-transparent">
                   Log in
                 </button>

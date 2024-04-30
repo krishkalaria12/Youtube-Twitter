@@ -4,6 +4,7 @@ import Error from "./NotFound"
 import Login from "./Login";
 import Signup from "./Signup";
 import SearchResultsPage from "./SearchResultsPage"
+import VideoPageDetail from "./VideoPageDetail"
 
 export {
     HomePage,
@@ -11,5 +12,6 @@ export {
     Error,
     Login,
     Signup,
-    SearchResultsPage
+    SearchResultsPage,
+    VideoPageDetail
 }

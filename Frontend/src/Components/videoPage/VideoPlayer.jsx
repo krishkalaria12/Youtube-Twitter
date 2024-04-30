@@ -1,15 +1,17 @@
 import React from "react";
+import ReactPlayer from 'react-player'
 
-function VideoPlayer() {
+function VideoPlayer({videoFile, title, thumbnail}) {
   return (
     <div className="relative mb-4 w-full pt-[56%]">
       <div className="absolute inset-0">
-        <video className="h-full w-full" controls="" autoPlay="" muted="">
-          <source
-            src="https://res.cloudinary.com/dfw5nnic5/video/upload/v1695117968/Sample_1280x720_mp4_b4db0s.mp4"
-            type="video/mp4"
-          />
-        </video>
+        <ReactPlayer 
+          config={{ file: { 
+            attributes: {
+              controlsList: 'nodownload'
+            }
+          }}}
+          controls playing width='100%' height='100%' light={thumbnail} className="w-full" url={videoFile} />
       </div>
     </div>
   );

@@ -1,29 +1,40 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import Logo from "../Components/Logo";
 import Input from "../Components/Form/Input";
 import Button from "../Components/Form/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../Helper/axiosInstance";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants/constants";
 
 function Login() {
+  // const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
 
   const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here, e.g., send data to backend
-    console.log(formData);
-    setFormData({
-        email: "",
-        password: ""
-    })
-  };
+      try {
+        const response = await axiosInstance.post('/users/login', formData);
+        if (response.data) {
+          localStorage.clear();
+          localStorage.setItem(ACCESS_TOKEN, response.data.data.accessToken);
+          localStorage.setItem(REFRESH_TOKEN, response.data.data.refreshToken);
+          navigate("/")
+        }
+      } catch (error) {
+        console.log("login failed: ", error);
+      }
+  }
 
   return (
     <div className="w-full h-screen text-white p-3 flex justify-center items-center sm:mt-8">
