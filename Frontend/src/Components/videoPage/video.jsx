@@ -60,8 +60,6 @@ function Video({video}) {
     }
   }
 
-  console.log(video.video);
-
   if (!video) {
     return <h1 className='font-bold text-3xl'>Loading</h1>;
   }

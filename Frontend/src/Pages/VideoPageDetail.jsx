@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getVideoById } from '../Redux/features/VideoSlice';
 import Video from "../Components/videoPage/video"
 import NoVideo from "../Components/NoVideo"
+import HomeLayout from '../Layout/HomeLayout';
 
 function VideoPageDetail() {
     const { videoId } = useParams();
@@ -15,15 +16,17 @@ function VideoPageDetail() {
     }, [dispatch, videoId]);
 
     return (
-        <div>
-            {loading ? (
-                <p>Loading...</p>
-            ) : error ? (
-                <NoVideo />
-            ) : (
-                selectedVideo && <Video video={selectedVideo} />
-            )}
-        </div>
+        <HomeLayout>
+            <div>
+                {loading ? (
+                    <p>Loading...</p>
+                ) : error ? (
+                    <NoVideo />
+                ) : (
+                    selectedVideo && <Video video={selectedVideo} />
+                )}
+            </div>
+        </HomeLayout>
     );
 }
 

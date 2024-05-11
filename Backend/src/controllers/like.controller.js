@@ -116,8 +116,8 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     const likedVideos = await Like.aggregate([
         {
             $match: {
-                likedBy: new mongoose.Types.ObjectId(userid)
-            }
+                likedBy: new mongoose.Types.ObjectId(userid),
+            },
         },
         {
             $lookup: {
@@ -132,13 +132,32 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                             localField: "owner",
                             foreignField: "_id",
                             as: "ownerDetails",
-                        }
+                        },
                     },
                     {
                         $unwind: "$ownerDetails",
-                    }
-                ]
-            }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            "videoFile.url": 1,
+                            "thumbnail.url": 1,
+                            owner: 1,
+                            title: 1,
+                            description: 1,
+                            views: 1,
+                            duration: 1,
+                            createdAt: 1,
+                            isPublished: 1,
+                            ownerDetails: {
+                                username: 1,
+                                fullName: 1,
+                                "avatar.url": 1,
+                            },
+                        },
+                    },
+                ],
+            },
         },
         {
             $unwind: "$likedVideo",
@@ -149,28 +168,10 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             },
         },
         {
-            $project: {
-                _id: 0,
-                likedVideo: {
-                    _id: 1,
-                    "videoFile.url": 1,
-                    "thumbnail.url": 1,
-                    owner: 1,
-                    title: 1,
-                    description: 1,
-                    views: 1,
-                    duration: 1,
-                    createdAt: 1,
-                    isPublished: 1,
-                    ownerDetails: {
-                        username: 1,
-                        fullName: 1,
-                        "avatar.url": 1,
-                    },
-                },
-            },
+            $replaceRoot: { newRoot: "$likedVideo" },
         },
-    ])
+    ]);
+
 
     if (!likedVideos) {
         throw new ApiError(400, "No Liked videos found")

@@ -1,9 +1,9 @@
 import React from 'react'
 import formatDateTime from "../../utils/CreatedAt"
+import { Link } from 'react-router-dom'
 
 function VideoDetails({owner,handleLikesCount, description, subscribed,subscribersCount, toggleSubscription,videoId, title, isLiked, likesCount, createdAt}) {
 
-  console.log(isLiked);
   return (
     <div
             className="group mb-4 w-full rounded-lg border p-4 duration-200 hover:bg-white/5 focus:bg-white/5"
@@ -243,7 +243,9 @@ function VideoDetails({owner,handleLikesCount, description, subscribed,subscribe
                     className="h-full w-full rounded-full" />
                 </div>
                 <div className="block">
-                  <p className="text-gray-200">{owner.username}</p>
+                  <Link to={`/channel/${owner._id}`}>
+                    <p className="text-gray-200">{owner.username}</p>
+                  </Link>
                   <p className="text-sm text-gray-400">{subscribersCount} Subscribers</p>
                 </div>
               </div>

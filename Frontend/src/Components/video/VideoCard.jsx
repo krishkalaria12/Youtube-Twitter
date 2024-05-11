@@ -34,7 +34,9 @@ function VideoCard({ video }) {
           <p className="flex text-sm text-gray-200">
             {video.__v} Views, {formatDateTime(video.createdAt)} Ago
           </p>
-          <p className="text-sm text-gray-200">{video.ownerDetails.username}</p>
+          <Link to={`/channel/${video.ownerDetails._id}`}>
+            <p className="text-sm text-gray-200">{video.ownerDetails.username}</p>
+          </Link>
         </div>
       </div>
     </div>

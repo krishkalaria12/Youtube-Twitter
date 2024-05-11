@@ -353,76 +353,117 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 });
 
 const getChannelProfile = asyncHandler( async (req,res) => {
-    const {username} = req.params
+    const {channelId} = req.params
 
-    if (!username?.trim()) {
-        throw new ApiError(404, "Username is missing")
+    if (!channelId) {
+        throw new ApiError(404, "Channel Id is missing")
     }
 
     const channel = await User.aggregate([
         {
-            $match: {
-                username: username?.toLowerCase()
-            }
+          $match: {
+            _id: new mongoose.Types.ObjectId(channelId)
+          }
         },
         {
-            $lookup: {
-                from: "subscriptions",
-                localField: "_id",
-                foreignField: "channel",
-                as: "subscribers"
-            }
+          $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "channel",
+            as: "subscribers"
+          }
         },
         {
-            $lookup: {
-                from: "subscriptions",
-                localField: "_id",
-                foreignField: "subscriber",
-                as: "subscribedTo"
-            }
-        }, 
+          $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "subscriber",
+            as: "subscribedTo"
+          }
+        },
         {
-            $addFields: {
-                subscribersCount: {
-                    $size: "$subscribers"
+          $addFields: {
+            subscribersCount: { $size: "$subscribers" },
+            channelsSubscribedToCount: { $size: "$subscribedTo" },
+            isSubscribed: {
+              $cond: {
+                if: {
+                  $in: [req.user?._id, "$subscribers.subscriber"]
                 },
-                channelsSubscribedToCount: {
-                    $size: "$subscribedTo"
-                }, 
-                isSubscribed:{
-                    $cond: {
-                        if: {
-                            $in: [req.user?._id, "$subscribers.subscriber"]
-                        },
-                        then: true,
-                        else: false
-                    }
-                }
+                then: true,
+                else: false
+              }
             }
+          }
         },
         {
-            $project: {
-                fullName: 1,
-                username: 1,
-                subscribersCount: 1,
-                channelsSubscribedToCount: 1,
-                isSubscribed: 1,
-                avatar: 1,
-                coverImage: 1,
-            }
+          $project: {
+            fullName: 1,
+            username: 1,
+            subscribersCount: 1,
+            channelsSubscribedToCount: 1,
+            isSubscribed: 1,
+            avatar: 1,
+            coverImage: 1,
+            // Project additional fields from the User model here
+          }
+        },
+        {
+          $lookup: {
+            from: "videos",
+            let: { channelId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$owner", "$$channelId"] },
+                  isPublished: true
+                }
+              },
+              {
+                $lookup: {
+                  from: "likes",
+                  localField: "_id",
+                  foreignField: "video",
+                  as: "likes"
+                }
+              },
+              {
+                $addFields: {
+                  likesCount: { $size: "$likes" }
+                  // Add more fields as needed
+                }
+              },
+              {
+                $sort: { createdAt: -1 }
+              },
+              {
+                $project: {
+                  _id: 1,
+                  "videoFile.url": 1,
+                  "thumbnail.url": 1,
+                  title: 1,
+                  description: 1,
+                  createdAt: 1,
+                  likesCount: 1,
+                  duration: 1,
+                  // Project additional fields from the Video model here
+                }
+              },
+            ],
+            as: "videos"
+          }
         }
-    ])
+      ]
+      )
 
-    if (!channel?.length) {
+    if (!channel) {
         throw new ApiError(404, "Channel does not exist")
     }
-
-    console.log(channel);
 
     return res
     .status(200)
     .json(
-        new ApiResponse(200, channel[0], "User Channel Fetched successfully")
+        new ApiResponse(200, channel, "User Channel Fetched successfully")
     )
 })
 

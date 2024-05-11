@@ -2,15 +2,26 @@ import React from "react";
 import Logo from "../Components/Logo";
 import { Link } from "react-router-dom";
 import Search from "../Components/Search";
+import { ACCESS_TOKEN } from "../constants/constants";
+import axiosInstance from "../Helper/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 function HomeLayout({ children }) {
 
-  // const dispatch = useDispatch()
-  // const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  
-  // const handleLogout = async () => {
-  //   await dispatch(logout())
-  // }
+  const isAuthenticated = localStorage.getItem(ACCESS_TOKEN);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      let res = await axiosInstance.post("/users/logout");
+      if (res.data) {
+        localStorage.clear();
+        navigate("/login")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="h-screen overflow-y-auto bg-[#121212] text-white">
@@ -122,27 +133,29 @@ function HomeLayout({ children }) {
               </button>
             </div>
             <ul className="my-4 flex w-full flex-wrap gap-2 px-4 sm:hidden">
-              <li className="w-full">
-                <button className="flex w-full items-center justify-start gap-x-4 border border-white px-4 py-1.5 text-left hover:bg-[#ae7aff] hover:text-black focus:border-[#ae7aff] focus:bg-[#ae7aff] focus:text-black">
-                  <span className="inline-block w-full max-w-[20px] group-hover:mr-4 lg:mr-4">
-                    <svg
-                      style={{ width: "100%" }}
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M6 21V10M1 12V19C1 20.1046 1.89543 21 3 21H16.4262C17.907 21 19.1662 19.9197 19.3914 18.4562L20.4683 11.4562C20.7479 9.6389 19.3418 8 17.5032 8H14C13.4477 8 13 7.55228 13 7V3.46584C13 2.10399 11.896 1 10.5342 1C10.2093 1 9.91498 1.1913 9.78306 1.48812L6.26394 9.40614C6.10344 9.76727 5.74532 10 5.35013 10H3C1.89543 10 1 10.8954 1 12Z"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                  <span>Liked Videos</span>
-                </button>
-              </li>
+              <Link to={"/liked-videos"}>
+                <li className="w-full">
+                  <button className="flex w-full items-center justify-start gap-x-4 border border-white px-4 py-1.5 text-left hover:bg-[#ae7aff] hover:text-black focus:border-[#ae7aff] focus:bg-[#ae7aff] focus:text-black">
+                    <span className="inline-block w-full max-w-[20px] group-hover:mr-4 lg:mr-4">
+                      <svg
+                        style={{ width: "100%" }}
+                        viewBox="0 0 22 22"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6 21V10M1 12V19C1 20.1046 1.89543 21 3 21H16.4262C17.907 21 19.1662 19.9197 19.3914 18.4562L20.4683 11.4562C20.7479 9.6389 19.3418 8 17.5032 8H14C13.4477 8 13 7.55228 13 7V3.46584C13 2.10399 11.896 1 10.5342 1C10.2093 1 9.91498 1.1913 9.78306 1.48812L6.26394 9.40614C6.10344 9.76727 5.74532 10 5.35013 10H3C1.89543 10 1 10.8954 1 12Z"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <span>Liked Videos</span>
+                  </button>
+                </li>
+              </Link>
               <li className="w-full">
                 <button className="flex w-full items-center justify-start gap-x-4 border border-white px-4 py-1.5 text-left hover:bg-[#ae7aff] hover:text-black focus:border-[#ae7aff] focus:bg-[#ae7aff] focus:text-black">
                   <span className="inline-block w-full max-w-[20px] group-hover:mr-4 lg:mr-4">
@@ -222,23 +235,35 @@ function HomeLayout({ children }) {
               </li>
             </ul>
             <div className="mb-8 mt-auto flex w-full flex-wrap gap-4 px-4 sm:mb-0 sm:mt-0 sm:items-center sm:px-0">
-                <Link to={"/login"}>
-                <button className="w-full bg-[#383737] px-3 py-2 hover:bg-[#4f4e4e] sm:w-auto sm:bg-transparent">
-                  Log in
-                </button>
-              </Link>
-              <Link to={"/signup"}>
-                <button className="mr-1 w-full bg-[#ae7aff] px-3 py-2 text-center font-bold text-black shadow-[5px_5px_0px_0px_#4f4e4e] transition-all duration-150 ease-in-out active:translate-x-[5px] active:translate-y-[5px] active:shadow-[0px_0px_0px_0px_#4f4e4e] sm:w-auto">
-                  Sign up
-                </button>
-              </Link>
+                {
+                  !isAuthenticated ? 
+                  (
+                    <>
+                      <Link to={"/login"}>
+                        <button className="w-full bg-[#383737] px-3 py-2 hover:bg-[#4f4e4e] sm:w-auto sm:bg-transparent">
+                          Log in
+                        </button>
+                      </Link>
+                      <Link to={"/signup"}>
+                        <button className="mr-1 w-full bg-[#ae7aff] px-3 py-2 text-center font-bold text-black shadow-[5px_5px_0px_0px_#4f4e4e] transition-all duration-150 ease-in-out active:translate-x-[5px] active:translate-y-[5px] active:shadow-[0px_0px_0px_0px_#4f4e4e] sm:w-auto">
+                          Sign up
+                        </button>
+                      </Link>
+                    </>
+                  ) : 
+                  (
+                    <button onClick={handleLogout} className="w-full bg-[#ae7aff] px-3 py-2 text-center font-bold text-black cursor-pointer sm:w-auto">
+                      Logout
+                    </button>
+                  )
+                }
             </div>
           </div>
         </nav>
       </header>
       <div className="flex min-h-[calc(100vh-66px)] sm:min-h-[calc(100vh-82px)]">
         <aside className="group fixed inset-x-0 bottom-0 z-40 w-full shrink-0 border-t border-white bg-[#121212] px-2 py-2 sm:absolute sm:inset-y-0 sm:max-w-[70px] sm:border-r sm:border-t-0 sm:py-6 sm:hover:max-w-[250px] lg:sticky lg:max-w-[250px]">
-          <ul className="flex justify-start gap-y-2 sm:sticky sm:top-[106px] sm:min-h-[calc(100vh-130px)] sm:flex-col">
+          <ul className="flex justify-around sm:justify-start gap-y-2 sm:sticky sm:top-[106px] sm:min-h-[calc(100vh-130px)] sm:flex-col">
             <Link to={"/"}>
               <li className="">
                 <button className="flex flex-col items-center justify-center border-white py-1 focus:text-[#ae7aff] sm:w-full sm:flex-row sm:border sm:p-1.5 sm:hover:bg-[#ae7aff] sm:hover:text-black sm:focus:border-[#ae7aff] sm:focus:bg-[#ae7aff] sm:focus:text-black sm:group-hover:justify-start sm:group-hover:px-4 lg:justify-start lg:px-4">

@@ -26,11 +26,6 @@ export const getVideoById = createAsyncThunk(
         try {
             const response = axiosInstance.get(`/video/v/${videoId}`);
             const res = await response;
-            toast.promise(response, {
-                loading: "Loading video data...",
-                success: "Video loaded successfully",
-                error: "Failed to get video",
-            });
             
             // Dispatch getAllVideos directly here
             const allVideosResponse = await dispatch(getAllVideos());
