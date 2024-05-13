@@ -2,20 +2,26 @@ import React from "react";
 import Logo from "../Components/Logo";
 import { Link } from "react-router-dom";
 import Search from "../Components/Search";
-import { ACCESS_TOKEN } from "../constants/constants";
 import axiosInstance from "../Helper/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { decodeToken } from "../utils/decodeToken";
 
 function HomeLayout({ children }) {
 
-  const isAuthenticated = localStorage.getItem(ACCESS_TOKEN);
+  const isAuthenticated = Cookies.get('session-auth-access');
   const navigate = useNavigate();
+
+  const token = decodeToken();
+  const username = token?.username;
 
   const handleLogout = async () => {
     try {
       let res = await axiosInstance.post("/users/logout");
       if (res.data) {
         localStorage.clear();
+        Cookies.remove('session-auth-access');
+        Cookies.remove('session-auth-refreshToken');
         navigate("/login")
       }
     } catch (error) {
@@ -156,34 +162,36 @@ function HomeLayout({ children }) {
                   </button>
                 </li>
               </Link>
-              <li className="w-full">
-                <button className="flex w-full items-center justify-start gap-x-4 border border-white px-4 py-1.5 text-left hover:bg-[#ae7aff] hover:text-black focus:border-[#ae7aff] focus:bg-[#ae7aff] focus:text-black">
-                  <span className="inline-block w-full max-w-[20px] group-hover:mr-4 lg:mr-4">
-                    <svg
-                      style={{ width: "100%" }}
-                      viewBox="0 0 22 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M21 4.93137C21 4.32555 21 4.02265 20.8802 3.88238C20.7763 3.76068 20.6203 3.69609 20.4608 3.70865C20.2769 3.72312 20.0627 3.93731 19.6343 4.36569L16 8L19.6343 11.6343C20.0627 12.0627 20.2769 12.2769 20.4608 12.2914C20.6203 12.3039 20.7763 12.2393 20.8802 12.1176C21 11.9774 21 11.6744 21 11.0686V4.93137Z"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M1 5.8C1 4.11984 1 3.27976 1.32698 2.63803C1.6146 2.07354 2.07354 1.6146 2.63803 1.32698C3.27976 1 4.11984 1 5.8 1H11.2C12.8802 1 13.7202 1 14.362 1.32698C14.9265 1.6146 15.3854 2.07354 15.673 2.63803C16 3.27976 16 4.11984 16 5.8V10.2C16 11.8802 16 12.7202 15.673 13.362C15.3854 13.9265 14.9265 14.3854 14.362 14.673C13.7202 15 12.8802 15 11.2 15H5.8C4.11984 15 3.27976 15 2.63803 14.673C2.07354 14.3854 1.6146 13.9265 1.32698 13.362C1 12.7202 1 11.8802 1 10.2V5.8Z"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                  <span>My Content</span>
-                </button>
-              </li>
+              <Link to={`/content/${username}`}>
+                <li className="w-full">
+                  <button className="flex w-full items-center justify-start gap-x-4 border border-white px-4 py-1.5 text-left hover:bg-[#ae7aff] hover:text-black focus:border-[#ae7aff] focus:bg-[#ae7aff] focus:text-black">
+                    <span className="inline-block w-full max-w-[20px] group-hover:mr-4 lg:mr-4">
+                      <svg
+                        style={{ width: "100%" }}
+                        viewBox="0 0 22 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M21 4.93137C21 4.32555 21 4.02265 20.8802 3.88238C20.7763 3.76068 20.6203 3.69609 20.4608 3.70865C20.2769 3.72312 20.0627 3.93731 19.6343 4.36569L16 8L19.6343 11.6343C20.0627 12.0627 20.2769 12.2769 20.4608 12.2914C20.6203 12.3039 20.7763 12.2393 20.8802 12.1176C21 11.9774 21 11.6744 21 11.0686V4.93137Z"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M1 5.8C1 4.11984 1 3.27976 1.32698 2.63803C1.6146 2.07354 2.07354 1.6146 2.63803 1.32698C3.27976 1 4.11984 1 5.8 1H11.2C12.8802 1 13.7202 1 14.362 1.32698C14.9265 1.6146 15.3854 2.07354 15.673 2.63803C16 3.27976 16 4.11984 16 5.8V10.2C16 11.8802 16 12.7202 15.673 13.362C15.3854 13.9265 14.9265 14.3854 14.362 14.673C13.7202 15 12.8802 15 11.2 15H5.8C4.11984 15 3.27976 15 2.63803 14.673C2.07354 14.3854 1.6146 13.9265 1.32698 13.362C1 12.7202 1 11.8802 1 10.2V5.8Z"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <span>My Content</span>
+                  </button>
+                </li>
+              </Link>
               <li className="w-full">
                 <button className="flex w-full items-center justify-start gap-x-4 border border-white px-4 py-1.5 text-left hover:bg-[#ae7aff] hover:text-black focus:border-[#ae7aff] focus:bg-[#ae7aff] focus:text-black">
                   <span className="inline-block w-full max-w-[20px] group-hover:mr-4 lg:mr-4">
@@ -339,7 +347,7 @@ function HomeLayout({ children }) {
                 </button>
               </li>
             </Link>
-            <Link to={"/channel/:id"}>
+            <Link to={`/content/${username}`}>
               <li className="hidden sm:block">
                 <button className="flex flex-col items-center justify-center border-white py-1 focus:text-[#ae7aff] sm:w-full sm:flex-row sm:border sm:p-1.5 sm:hover:bg-[#ae7aff] sm:hover:text-black sm:focus:border-[#ae7aff] sm:focus:bg-[#ae7aff] sm:focus:text-black sm:group-hover:justify-start sm:group-hover:px-4 lg:justify-start lg:px-4">
                   <span className="inline-block w-5 shrink-0 sm:group-hover:mr-4 lg:mr-4">
@@ -371,7 +379,7 @@ function HomeLayout({ children }) {
                 </button>
               </li>
             </Link>
-            <Link to={"/collections"}>
+            <Link to={"/dashboard"}>
               <li className="">
                 <button className="flex flex-col items-center justify-center border-white py-1 focus:text-[#ae7aff] sm:w-full sm:flex-row sm:border sm:p-1.5 sm:hover:bg-[#ae7aff] sm:hover:text-black sm:focus:border-[#ae7aff] sm:focus:bg-[#ae7aff] sm:focus:text-black sm:group-hover:justify-start sm:group-hover:px-4 lg:justify-start lg:px-4">
                   <span className="inline-block w-5 shrink-0 sm:group-hover:mr-4 lg:mr-4">
@@ -391,7 +399,7 @@ function HomeLayout({ children }) {
                     </svg>
                   </span>
                   <span className="block sm:hidden sm:group-hover:inline lg:inline">
-                    Collections
+                    Dashboard
                   </span>
                 </button>
               </li>

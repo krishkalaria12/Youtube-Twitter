@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ACCESS_TOKEN } from "../constants/constants";
+import Cookies from "js-cookie";
 
 const BASE_URL = import.meta.env.VITE_FRONTEND_BASE_URL;
 
@@ -10,7 +10,7 @@ axiosInstance.defaults.withCredentials = true;
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
+        const token = Cookies.get('session-auth-access');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

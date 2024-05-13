@@ -6,6 +6,8 @@ import RequireAuth from "./Components/Auth/RequireAuth";
 import ChannelDetail from "./Pages/ChannelDetail";
 import LikePage from "./Pages/LikePage";
 import PrivacyPolicy from "./Pages/Privacy";
+import ContentPage from "./Pages/ContentPage";
+import Dashboard from "./Pages/Dashboard";
 
 function RegisterLogout(){
   localStorage.clear();
@@ -31,6 +33,8 @@ function App() {
         <Route element={<RequireAuth />}>
           <Route path="/watch/:videoId" element={<VideoPageDetail />} />
           <Route path="/liked-videos" element={<LikePage />} />
+          <Route path="/content/:contentId" element={<ContentPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
 
         <Route path="*" element={<Error />} />

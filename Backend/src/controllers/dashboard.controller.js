@@ -70,11 +70,14 @@ const getChannelStats = asyncHandler(async (req, res) => {
         }
     ])
 
+    const user = await User.findById(userId).select("-password -refreshToken -watchHistory")
+
     const channelStats = {
         totalSubscribers: totalSubscribers[0]?.subscribersCount || 0,
         totalLikes: video[0]?.totalLikes || 0,
         totalViews: video[0]?.totalViews || 0,
-        totalVideos: video[0]?.totalVideos || 0
+        totalVideos: video[0]?.totalVideos || 0,
+        user: user
     };
 
     return res
@@ -138,7 +141,8 @@ const getChannelVideos = asyncHandler(async (req, res) => {
                     day: 1
                 },
                 isPublished: 1,
-                likesCount: 1
+                likesCount: 1,
+                duration: 1,
             }
         }
     ]);

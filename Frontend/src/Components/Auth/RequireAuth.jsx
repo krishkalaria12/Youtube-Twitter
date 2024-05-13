@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import LoginModal from "../LoginModal"
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "../../Helper/axiosInstance";
+import Cookies from "js-cookie";
 
 function RequireAuth (){
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
@@ -15,14 +16,14 @@ function RequireAuth (){
   },[])
   
   const refreshToken = async () => {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN);
+    const refreshToken = Cookies.get('session-auth-refreshToken');
     try {
       const res = await axiosInstance.post("/users/refresh-token", {
         refreshToken: refreshToken
       });
       if (res.status==200) {
-        localStorage.setItem(ACCESS_TOKEN, res.data.data.accessToken)
-        localStorage.setItem(REFRESH_TOKEN, res.data.data.accessToken)
+        Cookies.set('session-auth-access', res.data.data.accessToken, { expires: 1, secure: true, path: '/', sameSite: "strict" });
+        Cookies.set('session-auth-refreshToken', res.data.data.refreshToken, { expires: 10, secure: true, path: '/', sameSite: "strict" });
         setIsAuthenticated(true);
       }
       else {
@@ -35,7 +36,7 @@ function RequireAuth (){
   }
 
   const auth = async () => {
-    const token = localStorage.getItem(ACCESS_TOKEN);
+    const token = Cookies.get('session-auth-access');
     if (!token) {
       setIsAuthenticated(false);
       return;

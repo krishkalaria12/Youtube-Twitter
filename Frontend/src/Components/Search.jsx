@@ -30,7 +30,7 @@ function Search() {
   return (
     <div className="relative mx-auto w-full max-w-md overflow-hidden">
       <input
-        className="w-full border bg-transparent py-1 pl-8 pr-3 placeholder-white outline-none"
+        className="w-full border text-gray-100 bg-transparent py-1 pl-8 pr-3 placeholder-white outline-none"
         placeholder="Search"
         value={searchQuery}
         onChange={handleInputChange}

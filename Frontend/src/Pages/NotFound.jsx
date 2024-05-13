@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 const Error = () => {
   const navigate = useNavigate();
   return (
-    // error page tailwind component is taken from the given link
-    // https://freefrontend.com/tailwind-404-page-templates/
 
     <main className="h-screen w-full flex flex-col justify-center items-center bg-[#1A2238]">
       <h1 className="text-9xl font-extrabold text-white tracking-widest">

@@ -6,6 +6,7 @@ import Button from "../Components/Form/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../Helper/axiosInstance";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants/constants";
+import Cookies from "js-cookie";
 
 function Login() {
   // const dispatch = useDispatch();
@@ -29,6 +30,8 @@ function Login() {
           localStorage.clear();
           localStorage.setItem(ACCESS_TOKEN, response.data.data.accessToken);
           localStorage.setItem(REFRESH_TOKEN, response.data.data.refreshToken);
+          Cookies.set('session-auth-access', response.data.data.accessToken, { expires: 1, secure: true, path: '/', sameSite: "strict" });
+          Cookies.set('session-auth-refreshToken', response.data.data.refreshToken, { expires: 10, secure: true, path: '/', sameSite: "strict" });
           navigate("/")
         }
       } catch (error) {

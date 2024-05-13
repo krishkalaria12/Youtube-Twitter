@@ -107,7 +107,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
     const videoLocalPath = req.files?.videoFile[0]?.path;
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
-
+    
     if (!videoLocalPath) {
         throw new ApiError(400, "CoverImage file is required")
     }

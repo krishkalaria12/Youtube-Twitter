@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
-import { ACCESS_TOKEN } from "../../constants/constants";
+import Cookies from "js-cookie";
 
 const NotRequireAuth = () => {
-  // const { isAuthenticated } = useSelector((state) => state.auth);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem(ACCESS_TOKEN)) {
+    if (Cookies.get('session-auth-access')) {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
