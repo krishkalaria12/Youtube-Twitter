@@ -14,7 +14,6 @@ function LikePage() {
                 try {
                     const response = await axiosInstance.get("/likes/videos");
                     const res = await response;
-                    console.log(res);
                     setVideos(res.data.data);
                 } catch (error) {
                     setIsError(true);
@@ -47,7 +46,7 @@ function LikePage() {
     return (
         <HomeLayout>
             <h1 className='font-bold text-3xl mx-4 mt-6'>Liked Videos</h1>
-            <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 {videos && videos.length > 0 ? (
                     videos.map((video) => <VideoCard key={video._id} video={video} />)
                 ) : (

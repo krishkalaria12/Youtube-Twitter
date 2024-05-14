@@ -130,7 +130,11 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params;
+    const subscriberId = req.user?._id;
+
+    if (!isValidObjectId(subscriberId)) {
+        throw new ApiError(401, "Not authorized to fetch channels");
+    }
 
     const subscribedChannels = await Subscription.aggregate([
         {
@@ -143,63 +147,44 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                 from: "users",
                 localField: "channel",
                 foreignField: "_id",
-                as: "subscribedChannel",
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: "videos",
-                            localField: "_id",
-                            foreignField: "owner",
-                            as: "videos",
-                        },
-                    },
-                    {
-                        $addFields: {
-                            latestVideo: {
-                                $last: "$videos",
-                            },
-                        },
-                    },
-                ],
+                as: "channelDetails",
             },
         },
         {
-            $unwind: "$subscribedChannel",
+            $unwind: "$channelDetails",
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "channelDetails._id",
+                foreignField: "channel",
+                as: "subscribers",
+            },
         },
         {
             $project: {
-                _id: 0,
-                subscribedChannel: {
-                    _id: 1,
-                    username: 1,
-                    fullName: 1,
-                    "avatar.url": 1,
-                    latestVideo: {
-                        _id: 1,
-                        "videoFile.url": 1,
-                        "thumbnail.url": 1,
-                        owner: 1,
-                        title: 1,
-                        description: 1,
-                        duration: 1,
-                        createdAt: 1,
-                        views: 1
-                    },
-                },
+                _id: "$channelDetails._id",
+                fullName: "$channelDetails.fullName",
+                username: "$channelDetails.username",
+                AvatarUrl: "$channelDetails.avatar.url",
+                subscribersCount: { $size: "$subscribers" },
             },
         },
     ]);
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                subscribedChannels,
-                "subscribed channels fetched successfully"
-            )
-        );
-})
+    if (!subscribedChannels) {
+        throw new ApiError(404, "Couldn't fetch subscribed channels");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            subscribedChannels,
+            "Subscribed channels fetched successfully"
+        )
+    );
+});
+
 
 export {
     toggleSubscription,

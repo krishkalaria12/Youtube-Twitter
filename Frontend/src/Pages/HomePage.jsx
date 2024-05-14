@@ -16,6 +16,8 @@ function HomePage() {
     dispatch(getAllsearchs())
   }, [dispatch]);
 
+  console.log(videosData); 
+
   return (
     <HomeLayout>
       {(loading || isLoading) ? (
@@ -25,7 +27,7 @@ function HomePage() {
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 p-4">
           {videosData && videosData.length > 0 ? (
-            videosData.map((video) => <VideoCard key={video._id} video={video} />)
+            videosData.map((video) => <VideoCard key={video._id} history={false} video={video} />)
           ) : (
             <NoVideo />
           )}

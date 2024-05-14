@@ -23,7 +23,7 @@ function VideoPageDetail() {
                 ) : error ? (
                     <NoVideo />
                 ) : (
-                    selectedVideo && <Video video={selectedVideo} />
+                    selectedVideo && <Video video={selectedVideo} videoId={videoId} />
                 )}
             </div>
         </HomeLayout>

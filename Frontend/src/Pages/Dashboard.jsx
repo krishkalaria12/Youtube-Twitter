@@ -89,6 +89,7 @@ function Dashboard() {
     const handleDeleteClick = async (videoId) => {
         try {
             setIsToggling(true);
+            toast.loading("Deleting video...");
             const res = await axiosInstance.delete(`/video/v/${videoId}`, { videoId });
             if (res.data.statusCode==200) {
                 fetchChannelVideos();
@@ -448,7 +449,7 @@ function Dashboard() {
                     <DashBoardCard likes={channelStats.totalLikes} views={channelStats.totalViews} videos={channelStats.totalVideos} subscribers={channelStats.totalSubscribers} />
                     <DashBoardTable handleEditVideo={handleEditVideo} isToggling={isToggling} handleCheckboxToggle={handleCheckboxToggle} handleDeleteClick={handleDeleteClick} videos={channelVideos} />
                     {toggleModal && <DashBoardUploadVideoModal handleUploadVideo={handleUploadVideo} handleClose={handleCloseModal} /> }
-                    {uploadingVideo && <DashBoardUploadingVideo videoSize={videoSize} handleCloseVideo={handleCloseVideo} name={videoName} uploaded={uploaded} /> }
+                    {uploadingVideo && <DashBoardUploadingVideo videoSize={videoSize} handleCloseVideo={handleCloseVideo} name={videoName} uploaded={uploadingVideo} /> }
                     {editVideo && <DashBoardEditVideo handleSubmitEditVideo={handleSubmitEditVideo} handleClose={handleEditVideoClose} video={editVideoData} /> }
                 </div>
             </div>

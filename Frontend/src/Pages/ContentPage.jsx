@@ -31,6 +31,8 @@ function ContentPage() {
         fetchChannelVideos();
     }, []);
 
+    console.log(channelVideos);
+
     if (isChannelLoading) {
         return (
             <HomeLayout>

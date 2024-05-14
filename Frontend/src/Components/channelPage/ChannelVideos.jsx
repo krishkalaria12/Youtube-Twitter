@@ -2,6 +2,7 @@ import React from "react";
 import formatDateTime from "../../utils/CreatedAt"
 import { Link } from "react-router-dom";
 import secondsToMinutesSeconds from "../../utils/Duration";
+import getTimeAgo from "../../utils/getTimeAgo";
 
 function ChannelVideos({ videos }) {
   return (
@@ -26,7 +27,7 @@ function ChannelVideos({ videos }) {
             {video.title}
           </h6>
           <p className="flex text-sm text-gray-200">
-            {formatDateTime(video.createdAt)} ago
+            {video.views} Views | {getTimeAgo(video.createdAt)}
           </p>
         </div>
       ))}

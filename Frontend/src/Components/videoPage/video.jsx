@@ -6,12 +6,13 @@ import VideoPlayer from "./VideoPlayer"
 import axiosInstance from '../../Helper/axiosInstance'
 import toast from 'react-hot-toast'
 
-function Video({video}) {
+function Video({video, videoId}) {
   const [comments, setComments] = useState(video?.video?.comments || []);
   const [isSubscribed, setIsSubscribed] = useState(video?.video?.owner?.isSubscribed || false);
   const [subscribersCount, setSubscribersCount] = useState(video?.video?.owner?.subscribersCount || 0);
   const [TotalLikes, setTotalLikes] = useState(video?.video?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(video?.video?.isLiked || false);
+  const [historyId, setHistoryId] = useState(videoId);
 
   const handleCommentSubmit = async(newComment, videoId) => {
     const res = await axiosInstance.post(`/comment/v/${videoId}`, { content: newComment })
@@ -60,6 +61,16 @@ function Video({video}) {
     }
   }
 
+  const addtoWatchHistory = async () => {
+    try {
+      const resHistory = await axiosInstance.post(`/video/watch-history/v/${historyId}`);
+      const resView = await axiosInstance.post(`/video/view/v/${historyId}`);
+    }
+    catch(error) {
+      console.log(error);
+    }
+  }
+
   if (!video) {
     return <h1 className='font-bold text-3xl'>Loading</h1>;
   }
@@ -67,7 +78,7 @@ function Video({video}) {
   return (
     <div className="flex w-full flex-wrap gap-4 p-4 lg:flex-nowrap">
         <div className="col-span-12 w-full">
-          <VideoPlayer title={video.video.title} thumbnail={video.video.thumbnail.url} videoFile={video.video.videoFile.url} />
+          <VideoPlayer addtoWatchHistory={addtoWatchHistory} title={video.video.title} thumbnail={video.video.thumbnail.url} videoFile={video.video.videoFile.url} />
           <VideoDetails videoId={video.video._id} handleLikesCount={handleLikesCount} subscribersCount={subscribersCount} toggleSubscription={handleToggleSubscription} subscribed={isSubscribed} owner={video.video.owner} description={video.video.description} isLiked={isLiked} likesCount={TotalLikes} title={video.video.title} createdAt={video.video.createdAt} />
           <CommentSection videoId={video.video._id} onCommentSubmit={handleCommentSubmit} comments={comments} />
         </div>

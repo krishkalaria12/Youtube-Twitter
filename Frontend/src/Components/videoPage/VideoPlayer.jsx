@@ -1,10 +1,10 @@
 import React from "react";
 import ReactPlayer from 'react-player'
 
-function VideoPlayer({videoFile, title, thumbnail}) {
+function VideoPlayer({videoFile, title, thumbnail, addtoWatchHistory}) {
   return (
     <div className="relative mb-4 w-full pt-[56%]">
-      <div className="absolute inset-0">
+      <div onClick={addtoWatchHistory} className="absolute inset-0">
         <ReactPlayer 
           config={{ file: { 
             attributes: {

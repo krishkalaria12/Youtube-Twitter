@@ -452,11 +452,82 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         );
 });
 
+const addVideoToWatchHistory = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid videoId");
+    }
+
+    if (!req.user?._id) {
+        throw new ApiError(401, "You are not Authorized");
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const existingVideoIndex = user.watchHistory.findIndex(
+        (entry) => entry.videoId && entry.videoId.toString() === videoId
+    );
+
+    if (existingVideoIndex !== -1) {
+        user.watchHistory[existingVideoIndex].watchedAt = new Date();
+    } else {
+        user.watchHistory.push({ videoId: new mongoose.Types.ObjectId(videoId), watchedAt: new Date() });
+    }
+
+    await user.save();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                user,
+                "Video added to watch history successfully"
+            )
+        );
+});
+
+const incrementVideoView = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, 'Invalid videoId');
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(404, 'Video not found');
+    }
+
+    video.views += 1;
+
+    await video.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, video, 'View count incremented successfully')
+    );
+});
+
+
 export {
     getAllVideos,
     publishAVideo,
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    addVideoToWatchHistory,
+    incrementVideoView
 }

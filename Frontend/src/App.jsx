@@ -8,6 +8,8 @@ import LikePage from "./Pages/LikePage";
 import PrivacyPolicy from "./Pages/Privacy";
 import ContentPage from "./Pages/ContentPage";
 import Dashboard from "./Pages/Dashboard";
+import WatchHistory from "./Pages/WatchHistory";
+import SubscribedChannels from "./Pages/SubscribedChannels";
 
 function RegisterLogout(){
   localStorage.clear();
@@ -35,6 +37,8 @@ function App() {
           <Route path="/liked-videos" element={<LikePage />} />
           <Route path="/content/:contentId" element={<ContentPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/history" element={<WatchHistory />} />
+          <Route path="/subscriptions" element={<SubscribedChannels />} />
         </Route>
 
         <Route path="*" element={<Error />} />

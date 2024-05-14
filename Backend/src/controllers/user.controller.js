@@ -4,7 +4,7 @@ import {User} from "../models/user.models.js"
 import {uploadOnCloudinary, deleteOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -467,19 +467,28 @@ const getChannelProfile = asyncHandler( async (req,res) => {
     )
 })
 
-const getWatchHistory = asyncHandler( async (req,res) => {
+const getWatchHistory = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, "Invalid userId");
+    }
+
     const user = await User.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.ObjectId(req.body?._id)
+                _id: new mongoose.Types.ObjectId(userId)
             }
-        }, 
+        },
+        {
+            $unwind: "$watchHistory" // Unwind the watchHistory array to separate documents
+        },
         {
             $lookup: {
                 from: "videos",
-                localField: "watchHistory",
+                localField: "watchHistory.videoId",
                 foreignField: "_id",
-                as: "watchHistory",
+                as: "videoDetails",
                 pipeline: [
                     {
                         $lookup: {
@@ -492,7 +501,7 @@ const getWatchHistory = asyncHandler( async (req,res) => {
                                     $project: {
                                         fullName: 1,
                                         username: 1,
-                                        avatar:  1
+                                        avatar: 1
                                     }
                                 }
                             ]
@@ -507,15 +516,43 @@ const getWatchHistory = asyncHandler( async (req,res) => {
                     }
                 ]
             }
+        },
+        {
+            $addFields: {
+                videoDetails: {
+                    $first: "$videoDetails" // Get the first (and only) element from videoDetails array
+                }
+            }
+        },
+        {
+            $sort: {
+                "watchHistory.watchedAt": -1 // Sort by watchedAt in descending order
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                watchHistory: {
+                    $push: {
+                        videoDetails: "$videoDetails",
+                        watchedAt: "$watchHistory.watchedAt"
+                    }
+                }
+            }
         }
-    ])
+    ]);
+
+    if (!user) {
+        throw new ApiError(404, "User not found or no watch history");
+    }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user[0].watchHistory, "Watch History fetched successfully")
-    )
-})
+        .status(200)
+        .json(
+            new ApiResponse(200, user[0].watchHistory || [], "Watch History fetched successfully")
+        );
+});
+
 
 export {
     registerUser, 
