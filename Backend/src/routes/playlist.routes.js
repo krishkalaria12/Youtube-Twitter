@@ -9,12 +9,13 @@ import {
     updatePlaylist,
 } from "../controllers/playlist.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
+import { upload } from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
-router.route("/").post(createPlaylist)
+router.route("/").post(upload.single("thumbnail"), createPlaylist)
 
 router
     .route("/:playlistId")

@@ -446,6 +446,7 @@ const getChannelProfile = asyncHandler( async (req,res) => {
                   createdAt: 1,
                   likesCount: 1,
                   duration: 1,
+                  views: 1
                   // Project additional fields from the Video model here
                 }
               },

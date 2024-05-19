@@ -16,8 +16,6 @@ function HomePage() {
     dispatch(getAllsearchs())
   }, [dispatch]);
 
-  console.log(videosData); 
-
   return (
     <HomeLayout>
       {(loading || isLoading) ? (

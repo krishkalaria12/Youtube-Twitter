@@ -101,7 +101,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, { isLiked: true }));
+        .json(new ApiResponse(200, {tweetId, isLiked: true }));
 });
 
 const getLikedVideos = asyncHandler(async (req, res) => {

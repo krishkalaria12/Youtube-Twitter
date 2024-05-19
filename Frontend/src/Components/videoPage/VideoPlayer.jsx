@@ -1,17 +1,40 @@
 import React from "react";
 import ReactPlayer from 'react-player'
+import VideoJS from "../../utils/VideoJSPlayer";
 
 function VideoPlayer({videoFile, title, thumbnail, addtoWatchHistory}) {
+
+  const playerRef = React.useRef(null);
+
+  const videoJsOptions = {
+    autoplay: true,
+    controls: true,
+    responsive: true,
+    fluid: true,
+    sources: [{
+      src: videoFile,
+      type: 'video/mp4'
+    }]
+  };
+
+  const handlePlayerReady = (player) => {
+    playerRef.current = player;
+
+    // You can handle player events here, for example:
+    player.on('waiting', () => {
+      videojs.log('player is waiting');
+    });
+
+    player.on('dispose', () => {
+      videojs.log('player will dispose');
+    });
+  };
+
+
   return (
     <div className="relative mb-4 w-full pt-[56%]">
       <div onClick={addtoWatchHistory} className="absolute inset-0">
-        <ReactPlayer 
-          config={{ file: { 
-            attributes: {
-              controlsList: 'nodownload'
-            }
-          }}}
-          controls playing width='100%' height='100%' light={thumbnail} className="w-full" url={videoFile} />
+        <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
       </div>
     </div>
   );

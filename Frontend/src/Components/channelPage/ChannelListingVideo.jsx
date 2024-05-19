@@ -2,9 +2,9 @@ import React from "react";
 import ChannelEmptyVideo from "./ChannelEmptyVideo";
 import ChannelVideos from "./ChannelVideos";
 
-function ChannelListingVideo({videos}) {
+function ChannelListingVideo({videos, channel=false}) {
   return (
-    videos.length==0 ? <ChannelEmptyVideo /> : <ChannelVideos videos={videos} />
+    videos.length==0 ? <ChannelEmptyVideo /> : <ChannelVideos channel={channel} videos={videos} />
   );
 }
 

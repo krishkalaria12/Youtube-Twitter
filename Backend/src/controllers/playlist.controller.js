@@ -4,6 +4,7 @@ import { Video } from "../models/video.models.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
@@ -21,10 +22,26 @@ const createPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Description is Required")
     }
 
+    const thumbnailLocalPath = req.file?.path;
+
+    if (!thumbnailLocalPath) {
+        throw new ApiError(400, "thumbnail is required");
+    }
+
+    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+
+    if (!thumbnail) {
+        throw new ApiError(400, "thumbnail not found");
+    }
+
     const playlist = await Playlist.create({
         name,
         description,
         owner: req.user?._id,
+        thumbnail: {
+            public_id: thumbnail.public_id,
+            url: thumbnail.url
+        }
     });
 
     if (!playlist) {
@@ -75,7 +92,8 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
                 description: 1,
                 totalVideos: 1,
                 totalViews: 1,
-                updatedAt: 1
+                createdAt: 1,
+                thumbnail: 1
             }
         }
     ]);
@@ -114,7 +132,10 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         },
         {
             $match: {
-                "videos.isPublished": true
+                $or: [
+                    { "videos.isPublished": true },
+                    { "videos": { $size: 0 } }
+                ]
             }
         },
         {
@@ -127,15 +148,9 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         },
         {
             $addFields: {
-                totalVideos: {
-                    $size: "$videos"
-                },
-                totalViews: {
-                    $sum: "$videos.views"
-                },
-                owner: {
-                    $first: "$owner"
-                }
+                totalVideos: { $size: "$videos" },
+                totalViews: { $sum: "$videos.views" },
+                owner: { $first: "$owner" }
             }
         },
         {
@@ -146,6 +161,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
                 updatedAt: 1,
                 totalVideos: 1,
                 totalViews: 1,
+                thumbnail: 1,
                 videos: {
                     _id: 1,
                     "videoFile.url": 1,
@@ -159,11 +175,11 @@ const getPlaylistById = asyncHandler(async (req, res) => {
                 owner: {
                     username: 1,
                     fullName: 1,
-                    "avatar.url": 1
+                    "avatar.url": 1,
+                    _id: 1
                 }
             }
         }
-        
     ]);
 
     return res
@@ -280,6 +296,11 @@ const deletePlaylist = asyncHandler(async (req, res) => {
             400,
             "You can't delete this Playlist as you are not the owner"
         );
+    }
+
+    const thumbnailToDelete = playlistDetails.thumbnail.public_id;
+    if (thumbnailToDelete) {
+        await deleteOnCloudinary(thumbnailToDelete);
     }
     
     const result = await Playlist.findByIdAndDelete(playlistDetails?._id)

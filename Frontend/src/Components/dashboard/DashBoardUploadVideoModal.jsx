@@ -139,7 +139,7 @@ function DashBoardUploadVideoModal({ handleClose, handleUploadVideo }) {
             <input
               id="upload-video"
               type="file"
-              accept="video/mp4, video/webm, video/mkv"
+              accept="video/mp4"
               className="w-full text-gray-200 cursor-pointer border p-1 file:mr-4 file:border-none file:bg-[#ae7aff] file:px-3 file:py-1.5"
               onChange={handleVideoFileChange}
             />

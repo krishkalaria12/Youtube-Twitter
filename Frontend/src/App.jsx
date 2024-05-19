@@ -10,6 +10,7 @@ import ContentPage from "./Pages/ContentPage";
 import Dashboard from "./Pages/Dashboard";
 import WatchHistory from "./Pages/WatchHistory";
 import SubscribedChannels from "./Pages/SubscribedChannels";
+import PlaylistPage from "./Pages/Playlist";
 
 function RegisterLogout(){
   localStorage.clear();
@@ -24,7 +25,6 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/denied" element={<Denied />} />
         <Route path="/search/:query" element={<SearchResultsPage />} />
-        <Route path="/channel/:channelId" element={<ChannelDetail />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
         <Route element={<NotRequireAuth />}>
@@ -33,12 +33,14 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth />}>
+          <Route path="/channel/:channelId" element={<ChannelDetail />} />
           <Route path="/watch/:videoId" element={<VideoPageDetail />} />
           <Route path="/liked-videos" element={<LikePage />} />
           <Route path="/content/:contentId" element={<ContentPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/history" element={<WatchHistory />} />
           <Route path="/subscriptions" element={<SubscribedChannels />} />
+          <Route path="/playlist/:playlistId" element={<PlaylistPage />} />
         </Route>
 
         <Route path="*" element={<Error />} />

@@ -399,6 +399,16 @@ const deleteVideo = asyncHandler(async (req, res) => {
         video: videoId,
     })
 
+    await Playlist.updateMany(
+        { videos: videoId },
+        { $pull: { videos: videoId } }
+    );
+
+    await User.updateMany(
+        { "watchHistory.videoId": videoId },
+        { $pull: { watchHistory: { videoId: videoId } } }
+    );
+
     return res
     .status(200)
     .json(
@@ -520,6 +530,45 @@ const incrementVideoView = asyncHandler(async (req, res) => {
     );
 });
 
+const getUserUploadedVideos = asyncHandler(async (req, res) => {
+    const userId = req.user._id; // Assuming req.user contains the authenticated user
+
+    if (!mongoose.isValidObjectId(userId)) {
+        throw new ApiError(400, "Invalid userId");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const userVideos = await Video.aggregate([
+        {
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $project: {
+                title: 1,
+                "thumbnail.url": 1,
+                createdAt: 1,
+                views: 1,
+                isPublished: 1
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        }
+    ]);
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, userVideos, "User videos fetched successfully"));
+});
+
 
 export {
     getAllVideos,
@@ -529,5 +578,6 @@ export {
     deleteVideo,
     togglePublishStatus,
     addVideoToWatchHistory,
-    incrementVideoView
+    incrementVideoView,
+    getUserUploadedVideos
 }
