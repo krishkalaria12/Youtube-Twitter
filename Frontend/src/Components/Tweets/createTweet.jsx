@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 function CreateTweet({ handleTweetSubmit }) { 
     const [tweetContent, setTweetContent] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleInputChange = (e) => {
         setTweetContent(e.target.value);
@@ -10,8 +11,10 @@ function CreateTweet({ handleTweetSubmit }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (tweetContent.trim()) {
+            setIsSubmitting(true);
             handleTweetSubmit(tweetContent);
             setTweetContent('');
+            setIsSubmitting(false);
         }
     };
 
@@ -26,9 +29,10 @@ function CreateTweet({ handleTweetSubmit }) {
             />
             <button
                 type="submit"
-                className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                disabled={isSubmitting}
+                className={`px-4 py-2 ${!isSubmitting ? "bg-purple-500 text-white" : "bg-purple-300 text-gray-400"} rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500`}
             >
-                Tweet
+                {isSubmitting? 'Posting...' : 'Post'}
             </button>
         </form>
     );

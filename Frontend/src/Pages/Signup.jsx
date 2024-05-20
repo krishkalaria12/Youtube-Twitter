@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Logo from "../Components/Logo";
 import Input from "../Components/Form/Input";
 import Button from "../Components/Form/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import axiosInstance from "../Helper/axiosInstance";
+import Cookies from "js-cookie";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -15,6 +17,9 @@ function Signup() {
     coverImage: null,
   });
 
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -25,7 +30,7 @@ function Signup() {
     setFormData({ ...formData, [name]: files[0] });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.username || !formData.fullName || !formData.email || !formData.password) {
@@ -51,6 +56,31 @@ function Signup() {
     formDataToSend.append("password", formData.password);
     formDataToSend.append("avatar", formData.avatar);
     formDataToSend.append("coverImage", formData.coverImage);
+
+    // Send request to backend
+    try {
+      setIsSubmitting(true);
+      const res = await axiosInstance.post("/users/register", formDataToSend);
+      if (res.data.data) {
+        const data = {
+          email: formData.email,
+          password: formData.password
+        }
+        const response = await axiosInstance.post("/users/login", data);
+        if (response.data.data) {
+          Cookies.set('session-auth-access', response.data.data.accessToken, { expires: 1, secure: true, path: '/', sameSite: "strict" });
+          Cookies.set('session-auth-refreshToken', response.data.data.refreshToken, { expires: 10, secure: true, path: '/', sameSite: "strict" });
+          navigate("/")
+          toast.success("Account created successfully");
+          navigate("/")
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
 
     setFormData({
       username: "",
@@ -197,7 +227,7 @@ function Signup() {
             />
           </div>
           {/* Signup Button */}
-          <Button label={"Signup"} />
+          <Button submitting={isSubmitting} label={!isSubmitting ? "Signup" : "Signing In"} />
           {/* Login Link */}
           <p className="text-center text-sm">
             Already have an account?

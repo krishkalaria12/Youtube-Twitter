@@ -4,24 +4,29 @@ import HomeLayout from "../Layout/HomeLayout";
 import VideoCard from "../Components/video/VideoCard";
 import { getAllVideos } from "../Redux/features/VideoSlice";
 import { getAllsearchs } from "../Redux/features/searchSlice";
-import NoVideo from "../Components/NoVideo"
+import NoVideo from "../Components/NoVideo";
+import HomeSkeleton from "../Components/HomeSkeleton";
+import ServerError from "./ServerError";
 
 function HomePage() {
   const dispatch = useDispatch();
-  const { searchData, isLoading, isError } = useSelector((state) => state.search);
-  const { videosData, loading, error } = useSelector((state) => state.video);
+  const { searchData, isLoading: isSearchLoading, isError: isSearchError } = useSelector((state) => state.search);
+  const { videosData, loading: isVideoLoading, error: videoError } = useSelector((state) => state.video);
 
   useEffect(() => {
     dispatch(getAllVideos());
-    dispatch(getAllsearchs())
+    dispatch(getAllsearchs());
   }, [dispatch]);
+
+  const isLoading = isVideoLoading || isSearchLoading;
+  const isError = videoError || isSearchError;
 
   return (
     <HomeLayout>
-      {(loading || isLoading) ? (
-        <p>Loading...</p>
-      ) : (error || isError) ? (
-        <NoVideo />
+      {isLoading ? (
+        <HomeSkeleton />
+      ) : isError ? (
+        <ServerError />
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-4 p-4">
           {videosData && videosData.length > 0 ? (

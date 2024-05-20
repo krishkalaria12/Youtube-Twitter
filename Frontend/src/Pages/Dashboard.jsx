@@ -10,6 +10,9 @@ import toast from 'react-hot-toast';
 import DashBoardUploadVideoModal from '../Components/dashboard/DashBoardUploadVideoModal';
 import DashBoardUploadingVideo from '../Components/dashboard/DashBoardUploadingVideo';
 import DashBoardEditVideo from '../Components/dashboard/DashBoardEditVideo';
+import HomeLayout from '../Layout/HomeLayout';
+import DashboardSkeleton from '../Components/DashboardSkeleton';
+import ServerError from './ServerError';
 
 function Dashboard() {
 
@@ -20,6 +23,7 @@ function Dashboard() {
     const [channelVideos, setChannelVideos] = useState({});
     const [channelStats, setChannelStats] = useState([]);
     const [isChannelLoading, setIsChannelLoading] = useState(true);
+    const [isError, setIsError] = useState(false);
     const [isToggling, setIsToggling] = useState(false);
     const [toggleModal, setToggleModal] = useState(false);
     const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -54,6 +58,7 @@ function Dashboard() {
             }
         } catch (error) {
             console.log(error);
+            setIsError(true);
         } finally {
             setIsChannelLoading(false);
         }
@@ -65,7 +70,15 @@ function Dashboard() {
 
     if (isChannelLoading) {
         return (
-            <p className='font-bold text-3xl'>Loading..</p>
+            <DashboardSkeleton />
+        )
+    }
+
+    if (isError) {
+        return (
+            <HomeLayout>
+                <ServerError />
+            </HomeLayout>
         )
     }
 

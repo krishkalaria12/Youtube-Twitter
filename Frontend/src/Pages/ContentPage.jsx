@@ -10,6 +10,7 @@ import TweetPage from '../Components/Tweets/TweetPage';
 import { decodeToken } from '../utils/decodeToken';
 import CreatePlaylistModal from '../Components/Playlists/CreatePlaylistModal';
 import toast from 'react-hot-toast';
+import ContentPageLoadingSkeleton from '../Components/ContentPageLoadingSkeleton';
 
 function ContentPage() {
     const [isChannelLoading, setIsChannelLoading] = useState(true);
@@ -127,7 +128,7 @@ function ContentPage() {
     if (isChannelLoading) {
         return (
             <HomeLayout>
-                <p className='font-bold text-3xl'>Loading..</p>
+                <ContentPageLoadingSkeleton />
             </HomeLayout>
         )
     }

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import Logo from "../Components/Logo";
 import Input from "../Components/Form/Input";
 import Button from "../Components/Form/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../Helper/axiosInstance";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants/constants";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 
 function Login() {
   // const dispatch = useDispatch();
@@ -16,6 +15,7 @@ function Login() {
     email: "",
     password: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,17 +25,21 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
       try {
+        setIsSubmitting(true);
         const response = await axiosInstance.post('/users/login', formData);
         if (response.data) {
-          localStorage.clear();
-          localStorage.setItem(ACCESS_TOKEN, response.data.data.accessToken);
-          localStorage.setItem(REFRESH_TOKEN, response.data.data.refreshToken);
           Cookies.set('session-auth-access', response.data.data.accessToken, { expires: 1, secure: true, path: '/', sameSite: "strict" });
           Cookies.set('session-auth-refreshToken', response.data.data.refreshToken, { expires: 10, secure: true, path: '/', sameSite: "strict" });
+          toast.success("Login successful");
           navigate("/")
         }
       } catch (error) {
-        console.log("login failed: ", error);
+          console.log(error.response);
+          const errorMessage = error.response?.data?.error || 'Login failed';
+          console.log("login failed: ", errorMessage);
+          toast.error(errorMessage);
+      } finally {
+        setIsSubmitting(false);
       }
   }
 
@@ -71,7 +75,7 @@ function Login() {
               onchange={handleInputChange}
             />
           </div>
-          <Button label={"Login"} />
+          <Button submitting={isSubmitting} label={!isSubmitting ? "Login" : "Logging In"} />
           <p className="text-center text-sm">
             Don&#39;t have an account?{" "}
             <Link className="text-purple-600 cursor-pointer hover:opacity-70 ml-2" to={"/signup"}>

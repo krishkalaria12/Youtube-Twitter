@@ -260,9 +260,16 @@ function HomeLayout({ children }) {
                     </>
                   ) : 
                   (
-                    <button onClick={handleLogout} className="w-full bg-[#ae7aff] px-3 py-2 text-center font-bold text-black cursor-pointer sm:w-auto">
+                    <div className="flex items-center space-x-4">
+                      <button onClick={handleLogout} className="w-full bg-[#ae7aff] px-3 py-2 text-center font-bold text-black cursor-pointer sm:w-auto">
                       Logout
-                    </button>
+                      </button>
+                      <Link to={"/profile"}>
+                        <button className="w-full bg-[#ae7aff] px-3 py-2 text-center font-bold text-black cursor-pointer sm:w-auto">
+                          Profile
+                        </button>
+                      </Link>
+                    </div>
                   )
                 }
             </div>
@@ -424,7 +431,7 @@ function HomeLayout({ children }) {
                     </svg>
                   </span>
                   <span className="block sm:hidden sm:group-hover:inline lg:inline">
-                    Subscribers
+                    Subscribed Channels
                   </span>
                 </button>
               </li>

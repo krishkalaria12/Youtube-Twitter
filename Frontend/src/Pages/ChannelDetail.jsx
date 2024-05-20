@@ -11,6 +11,7 @@ import TweetPage from "../Components/Tweets/TweetPage";
 import { decodeToken } from "../utils/decodeToken";
 import toast from "react-hot-toast";
 import PlayListPage from "../Components/Playlists/PlayListPage";
+import ContentPageLoadingSkeleton from "../Components/ContentPageLoadingSkeleton";
 
 function ChannelDetail() {
     const { channelId } = useParams();
@@ -100,7 +101,11 @@ function ChannelDetail() {
     };
 
     if (loading) {
-        return <h1 className='font-bold text-3xl'>Loading</h1>;
+        return (
+            <HomeLayout>
+                <ContentPageLoadingSkeleton />
+            </HomeLayout>
+        )
     }
 
     const renderContent = () => {

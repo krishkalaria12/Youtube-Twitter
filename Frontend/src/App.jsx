@@ -11,6 +11,7 @@ import Dashboard from "./Pages/Dashboard";
 import WatchHistory from "./Pages/WatchHistory";
 import SubscribedChannels from "./Pages/SubscribedChannels";
 import PlaylistPage from "./Pages/Playlist";
+import Profile from "./Pages/Profile";
 
 function RegisterLogout(){
   localStorage.clear();
@@ -41,6 +42,7 @@ function App() {
           <Route path="/history" element={<WatchHistory />} />
           <Route path="/subscriptions" element={<SubscribedChannels />} />
           <Route path="/playlist/:playlistId" element={<PlaylistPage />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         <Route path="*" element={<Error />} />

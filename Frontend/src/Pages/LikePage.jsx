@@ -3,6 +3,8 @@ import HomeLayout from '../Layout/HomeLayout'
 import axiosInstance from '../Helper/axiosInstance';
 import VideoCard from "../Components/video/VideoCard";
 import NoVideo from "../Components/NoVideo"
+import HomeSkeleton from '../Components/HomeSkeleton';
+import ServerError from './ServerError';
 
 function LikePage() {
     const [videos, setVideos] = useState([]);
@@ -30,7 +32,7 @@ function LikePage() {
     if (isLoading) {
         return (
             <HomeLayout>
-                <h1 className='font-bold text-3xl'>Loading</h1>;
+                <HomeSkeleton />
             </HomeLayout>
         )
     }
@@ -38,7 +40,7 @@ function LikePage() {
     if (isError) {
         return (
             <HomeLayout>
-                <h1 className='font-bold text-3xl'>Something went wrong</h1>;
+                <ServerError />
             </HomeLayout>
         )
     }

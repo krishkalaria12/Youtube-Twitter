@@ -3,6 +3,8 @@ import HomeLayout from '../Layout/HomeLayout';
 import axiosInstance from '../Helper/axiosInstance';
 import VideoCard from "../Components/video/VideoCard";
 import NoVideo from "../Components/NoVideo";
+import ServerError from './ServerError';
+import HomeSkeleton from '../Components/HomeSkeleton';
 
 function WatchHistory() {
     const [videos, setVideos] = useState([]);
@@ -14,7 +16,6 @@ function WatchHistory() {
             try {
                 const response = await axiosInstance.get("/users/history");
                 const res = await response;
-                console.log(res);
                 setVideos(res.data.data);
             } catch (error) {
                 setIsError(true);
@@ -29,20 +30,18 @@ function WatchHistory() {
     if (isLoading) {
         return (
             <HomeLayout>
-                <h1 className='font-bold text-3xl'>Loading</h1>
+                <HomeSkeleton />
             </HomeLayout>
-        );
+        )
     }
 
     if (isError) {
         return (
             <HomeLayout>
-                <h1 className='font-bold text-3xl'>Something went wrong</h1>
+                <ServerError />
             </HomeLayout>
-        );
+        )
     }
-
-    console.log(videos);
 
     return (
         <HomeLayout>

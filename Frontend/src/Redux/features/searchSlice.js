@@ -8,22 +8,25 @@ const initialState = {
     isError: null,
 };
 
-// Thunk for searching searchs
-export const getAllsearchs = createAsyncThunk("search/search", async ({ query, sortBy, sortType }, { rejectWithValue }) => {
-    try {
-        const response = axiosInstance.get("/video/", { params: {sortBy, sortType, query } });
-        const res = await response
-        toast.promise(response, {
-            loading: "Searching searchs...",
-            success: "Search results loaded successfully",
-            error: "Failed to search searchs",
-        });
-        return res.data.data.docs;
-    } catch (error) {
-        toast.error(error?.response?.data?.message);
-        return rejectWithValue(error?.response?.data?.message);
+// Thunk for searching searches
+export const getAllsearchs = createAsyncThunk(
+    "search/search",
+    async ({ query, sortBy, sortType }, { rejectWithValue }) => {
+        try {
+            const response = axiosInstance.get("/video/", { params: { sortBy, sortType, query } });
+            const res = await response;
+            toast.promise(response, {
+                loading: "Searching searches...",
+                success: "Search results loaded successfully",
+                error: "Failed to search searches",
+            });
+            return res.data.data.docs;
+        } catch (error) {
+            toast.error(error?.response?.data?.message);
+            return rejectWithValue(error?.response?.data?.message);
+        }
     }
-});
+);
 
 // Reducer
 const searchSlice = createSlice({
@@ -32,6 +35,10 @@ const searchSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
+            .addCase(getAllsearchs.pending, (state) => {
+                state.isLoading = true;
+                state.isError = null;
+            })
             .addCase(getAllsearchs.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.searchData = action.payload;

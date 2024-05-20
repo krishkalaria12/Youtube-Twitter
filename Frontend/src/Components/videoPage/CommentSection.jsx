@@ -3,6 +3,7 @@ import CommentCard from "./CommentCard";
 
 function CommentSection({ comments, onCommentSubmit, videoId }) {
     const [newComment, setNewComment] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
     const handleChange = (e) => {
         setNewComment(e.target.value);
@@ -10,8 +11,12 @@ function CommentSection({ comments, onCommentSubmit, videoId }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onCommentSubmit(newComment, videoId);
-        // setNewComment("");
+        if (newComment.trim()) {
+            setSubmitting(true);
+            onCommentSubmit(newComment, videoId);
+            setNewComment("");
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -29,9 +34,10 @@ function CommentSection({ comments, onCommentSubmit, videoId }) {
                         />
                         <button
                             type="submit"
-                            className="bg-[#7733e4] hover:bg-[#854ae4] text-white font-semibold py-2 px-4 rounded inline-block"
+                            disabled={submitting}
+                            className={`${!submitting ? "bg-[#9872d6] " : "bg-[#7733e4]"} hover:bg-[#854ae4] text-white font-semibold py-2 px-4 rounded inline-block`}
                         >
-                            Add Comment
+                            {submitting? "Commenting..." : "Add Comment"}
                         </button>
                     </div>
                 </div>

@@ -5,6 +5,8 @@ import { getVideoById } from '../Redux/features/VideoSlice';
 import Video from "../Components/videoPage/video"
 import NoVideo from "../Components/NoVideo"
 import HomeLayout from '../Layout/HomeLayout';
+import VideoLoadingSkeleton from '../Components/VideoDetailsSkeleton';
+import ServerError from './ServerError';
 
 function VideoPageDetail() {
     const { videoId } = useParams();
@@ -19,9 +21,9 @@ function VideoPageDetail() {
         <HomeLayout>
             <div>
                 {loading ? (
-                    <p>Loading...</p>
+                    <VideoLoadingSkeleton />
                 ) : error ? (
-                    <NoVideo />
+                    <ServerError />
                 ) : (
                     selectedVideo && <Video video={selectedVideo} videoId={videoId} />
                 )}

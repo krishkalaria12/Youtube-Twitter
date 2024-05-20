@@ -6,6 +6,7 @@ import HomeLayout from '../Layout/HomeLayout';
 import axiosInstance from '../Helper/axiosInstance';
 import NoChannelSubscribed from '../Components/subscribedPage/NoChannelSubscribed';
 import toast from 'react-hot-toast';
+import ServerError from './ServerError';
 
 function SubscribedChannels() {
     const [subscribedChannels, setSubscribedChannels] = useState([]);
@@ -30,6 +31,17 @@ function SubscribedChannels() {
         fetchSubscribedChannels();
     }, []);
 
+    const renderSkeleton = () => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                {[...Array(6)].map((_, index) => (
+                    <div key={index} className="bg-gray-800 p-4 rounded shadow">
+                        <div className="w-24 h-6 bg-gray-700 rounded animate-pulse"></div>
+                        <div className="mt-2 w-20 h-4 bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                ))}
+            </div>
+    );
+
     const handleDeleteSubscribedChannel = async (id) => {
         try {
             await axiosInstance.post(`/subscriptions/c/${id}`);
@@ -43,12 +55,18 @@ function SubscribedChannels() {
     if (isLoading) {
         return (
             <HomeLayout>
-                <h1 className='font-bold text-3xl'>Loading</h1>
+                {renderSkeleton()}
             </HomeLayout>
         )
     }
 
-    console.log(subscribedChannels);
+    if (isError) {
+        return (
+            <HomeLayout>
+                <ServerError />
+            </HomeLayout>
+        )
+    }
 
     return (
         <HomeLayout>
